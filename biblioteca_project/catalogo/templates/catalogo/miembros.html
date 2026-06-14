@@ -1,0 +1,54 @@
+{% extends "catalogo/base.html" %}
+{% block title %}Miembros{% endblock %}
+{% block topbar_title %}👥 Miembros{% endblock %}
+{% block topbar_actions %}<a href="{% url 'nuevo_miembro' %}" class="btn btn-amber btn-sm">➕ Nuevo miembro</a>{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Miembros</h1>
+    <p class="page-subtitle">{{ miembros.count }} miembro{{ miembros.count|pluralize:"s" }} registrado{{ miembros.count|pluralize:"s" }}</p>
+  </div>
+  <a href="{% url 'nuevo_miembro' %}" class="btn btn-amber">➕ Nuevo miembro</a>
+</div>
+<form method="get">
+  <div class="search-bar">
+    <div class="search-input-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" name="q" value="{{ query }}" placeholder="Buscar por nombre o correo…">
+    </div>
+    <button type="submit" class="btn btn-primary">Buscar</button>
+    <a href="{% url 'lista_miembros' %}" class="btn btn-outline">Limpiar</a>
+  </div>
+</form>
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Nombre</th><th>Correo</th><th>Tipo</th><th>Préstamos</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody>
+        {% for m in miembros %}
+        <tr>
+          <td class="text-muted">{{ m.pk }}</td>
+          <td><div style="font-weight:600">{{ m }}</div><div class="text-muted">{{ m.telefono }}</div></td>
+          <td class="text-muted">{{ m.email }}</td>
+          <td>
+            {% if m.tipo == 'estudiante' %}<span class="badge badge-blue">Estudiante</span>
+            {% elif m.tipo == 'docente' %}<span class="badge badge-amber">Docente</span>
+            {% else %}<span class="badge badge-gray">Externo</span>{% endif %}
+          </td>
+          <td><span class="badge badge-amber">{{ m.num_prestamos }}</span></td>
+          <td>{% if m.activo %}<span class="badge badge-green">Activo</span>{% else %}<span class="badge badge-red">Inactivo</span>{% endif %}</td>
+          <td>
+            <div style="display:flex;gap:6px">
+              <a href="{% url 'editar_miembro' m.pk %}" class="btn btn-outline btn-sm btn-icon">✏️</a>
+              <a href="{% url 'eliminar_miembro' m.pk %}" class="btn btn-outline btn-sm btn-icon" style="color:var(--red)">🗑</a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7"><div class="empty-state"><span class="empty-icon">👥</span><p>Sin miembros registrados.</p></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

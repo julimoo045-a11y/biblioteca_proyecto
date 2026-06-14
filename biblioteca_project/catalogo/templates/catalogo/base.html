@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}BiblioTeca{% endblock %} — Sistema de Biblioteca</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #1a1412;
+      --paper: #faf7f2;
+      --cream: #f0ebe0;
+      --amber: #c8873a;
+      --amber-light: #e8a855;
+      --amber-pale: #fdf3e3;
+      --teal: #2d6a6a;
+      --teal-light: #3d8a8a;
+      --red: #c0392b;
+      --green: #27774a;
+      --sidebar-w: 260px;
+      --radius: 12px;
+      --shadow: 0 2px 16px rgba(26,20,18,0.08);
+      --shadow-lg: 0 8px 40px rgba(26,20,18,0.14);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; display: flex; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w); min-height: 100vh; background: var(--ink);
+      display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 100;
+    }
+    .sidebar-logo {
+      padding: 28px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar-logo .logo-icon { font-size: 2rem; display: block; margin-bottom: 6px; }
+    .sidebar-logo h1 { font-family: 'Playfair Display', serif; color: #fff; font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em; }
+    .sidebar-logo p { color: rgba(255,255,255,0.4); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; margin-top: 2px; }
+
+    .sidebar-nav { padding: 16px 0; flex: 1; }
+    .nav-section { padding: 12px 20px 4px; color: rgba(255,255,255,0.28); font-size: 0.65rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600; }
+    .nav-link {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 20px; color: rgba(255,255,255,0.65); text-decoration: none;
+      font-size: 0.88rem; font-weight: 400; transition: all 0.18s; border-left: 3px solid transparent;
+    }
+    .nav-link:hover { color: #fff; background: rgba(255,255,255,0.06); }
+    .nav-link.active { color: var(--amber-light); background: rgba(200,135,58,0.12); border-left-color: var(--amber); }
+    .nav-link .icon { font-size: 1.1rem; width: 20px; text-align: center; }
+
+    .sidebar-footer {
+      padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.3); font-size: 0.75rem;
+    }
+
+    /* ── MAIN ── */
+    .main { margin-left: var(--sidebar-w); flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
+    .topbar {
+      background: #fff; border-bottom: 1px solid #ece6db;
+      padding: 0 32px; height: 64px; display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 600; color: var(--ink); }
+    .topbar-actions { display: flex; gap: 10px; align-items: center; }
+    .content { padding: 32px; flex: 1; }
+
+    /* ── MESSAGES ── */
+    .messages { margin-bottom: 20px; }
+    .alert {
+      padding: 12px 18px; border-radius: var(--radius); font-size: 0.88rem; font-weight: 500;
+      display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+    }
+    .alert-success { background: #e8f5ec; color: #1a5c36; border: 1px solid #b6dfc5; }
+    .alert-error { background: #fdecea; color: #8b1a1a; border: 1px solid #f4b8b3; }
+    .alert-warning { background: #fef9e7; color: #7d5a0a; border: 1px solid #f9e49c; }
+
+    /* ── CARDS ── */
+    .card {
+      background: #fff; border-radius: var(--radius); border: 1px solid #ece6db;
+      box-shadow: var(--shadow); overflow: hidden;
+    }
+    .card-header {
+      padding: 20px 24px; border-bottom: 1px solid #f0ebe0;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-header h2 { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; }
+    .card-body { padding: 24px; }
+
+    /* ── STAT CARDS ── */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 28px; }
+    .stat-card {
+      background: #fff; border-radius: var(--radius); border: 1px solid #ece6db;
+      padding: 22px 24px; display: flex; align-items: center; gap: 18px;
+      box-shadow: var(--shadow); transition: transform 0.18s;
+    }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+    .stat-icon { width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+    .stat-icon.amber { background: var(--amber-pale); }
+    .stat-icon.teal { background: #e4f0f0; }
+    .stat-icon.green { background: #e8f5ec; }
+    .stat-icon.red { background: #fdecea; }
+    .stat-value { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; line-height: 1; }
+    .stat-label { font-size: 0.8rem; color: #8a7d72; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
+
+    /* ── TABLE ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    thead tr { border-bottom: 2px solid #ece6db; }
+    th { padding: 10px 16px; text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: #8a7d72; font-weight: 600; white-space: nowrap; }
+    td { padding: 14px 16px; border-bottom: 1px solid #f5f0e8; vertical-align: middle; }
+    tbody tr:hover { background: #faf7f2; }
+    tbody tr:last-child td { border-bottom: none; }
+
+    /* ── BADGES ── */
+    .badge {
+      display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px;
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em; white-space: nowrap;
+    }
+    .badge-green { background: #e8f5ec; color: #1a6b3c; }
+    .badge-amber { background: var(--amber-pale); color: #9a5c14; }
+    .badge-red { background: #fdecea; color: #8b1a1a; }
+    .badge-blue { background: #e8f0fd; color: #1a3a8b; }
+    .badge-gray { background: #f0ebe0; color: #6a5f56; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 18px; border-radius: 8px; font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; text-decoration: none; border: none; transition: all 0.18s; white-space: nowrap;
+    }
+    .btn-primary { background: var(--ink); color: #fff; }
+    .btn-primary:hover { background: #2d2420; transform: translateY(-1px); }
+    .btn-amber { background: var(--amber); color: #fff; }
+    .btn-amber:hover { background: #b5762e; }
+    .btn-teal { background: var(--teal); color: #fff; }
+    .btn-teal:hover { background: #255858; }
+    .btn-outline { background: transparent; color: var(--ink); border: 1.5px solid #d5cfc5; }
+    .btn-outline:hover { background: var(--cream); }
+    .btn-danger { background: #c0392b; color: #fff; }
+    .btn-danger:hover { background: #a93226; }
+    .btn-sm { padding: 5px 12px; font-size: 0.78rem; }
+    .btn-icon { padding: 6px 10px; }
+
+    /* ── FORM ── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+    label { font-size: 0.8rem; font-weight: 600; color: #5c5048; letter-spacing: 0.04em; text-transform: uppercase; }
+    input, select, textarea {
+      padding: 10px 14px; border-radius: 8px; border: 1.5px solid #d5cfc5;
+      font-family: 'DM Sans', sans-serif; font-size: 0.875rem; color: var(--ink);
+      background: #fff; transition: border-color 0.18s, box-shadow 0.18s; width: 100%;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none; border-color: var(--amber); box-shadow: 0 0 0 3px rgba(200,135,58,0.15);
+    }
+    textarea { resize: vertical; min-height: 90px; }
+    .form-actions { display: flex; gap: 12px; padding-top: 8px; }
+
+    /* ── SEARCH BAR ── */
+    .search-bar { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; }
+    .search-input-wrap { position: relative; flex: 1; min-width: 200px; }
+    .search-input-wrap input { padding-left: 36px; }
+    .search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: #a09080; font-size: 0.9rem; }
+
+    /* ── MISC ── */
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .page-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--ink); }
+    .page-subtitle { color: #8a7d72; font-size: 0.875rem; margin-top: 4px; }
+    .empty-state { text-align: center; padding: 60px 20px; color: #a09080; }
+    .empty-state .empty-icon { font-size: 3.5rem; display: block; margin-bottom: 12px; }
+    .divider { height: 1px; background: #ece6db; margin: 20px 0; }
+    .text-muted { color: #a09080; font-size: 0.82rem; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+    @media (max-width: 900px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .form-grid { grid-template-columns: 1fr; }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-icon">📚</span>
+      <h1>BiblioTeca</h1>
+      <p>Sistema de Gestión</p>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Principal</div>
+      <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+        <span class="icon">🏛️</span> Dashboard
+      </a>
+      <div class="nav-section">Catálogo</div>
+      <a href="{% url 'lista_libros' %}" class="nav-link {% if 'libro' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="icon">📖</span> Libros
+      </a>
+      <a href="{% url 'lista_autores' %}" class="nav-link {% if 'autor' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="icon">✍️</span> Autores
+      </a>
+      <div class="nav-section">Circulación</div>
+      <a href="{% url 'lista_prestamos' %}" class="nav-link {% if 'prestamo' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="icon">🔄</span> Préstamos
+      </a>
+      <a href="{% url 'lista_miembros' %}" class="nav-link {% if 'miembro' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="icon">👥</span> Miembros
+      </a>
+      <div class="nav-section">Accesos rápidos</div>
+      <a href="{% url 'nuevo_libro' %}" class="nav-link">
+        <span class="icon">➕</span> Agregar libro
+      </a>
+      <a href="{% url 'nuevo_prestamo' %}" class="nav-link">
+        <span class="icon">📤</span> Nuevo préstamo
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      &copy; 2024 BiblioTeca v1.0<br>SQLite3 · Django
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <span class="topbar-title">{% block topbar_title %}Sistema de Biblioteca{% endblock %}</span>
+      <div class="topbar-actions">{% block topbar_actions %}{% endblock %}</div>
+    </header>
+    <div class="content">
+      {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}error{% elif message.tags == 'warning' %}warning{% else %}success{% endif %}">
+          {{ message }}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</body>
+</html>

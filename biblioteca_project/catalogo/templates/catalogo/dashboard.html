@@ -1,0 +1,105 @@
+{% extends "catalogo/base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block topbar_title %}📊 Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Bienvenido a BiblioTeca</h1>
+    <p class="page-subtitle">Resumen general del sistema de gestión bibliográfica</p>
+  </div>
+  <a href="{% url 'nuevo_prestamo' %}" class="btn btn-amber">📤 Nuevo préstamo</a>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon amber">📚</div>
+    <div>
+      <div class="stat-value">{{ total_libros }}</div>
+      <div class="stat-label">Libros en catálogo</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon teal">✍️</div>
+    <div>
+      <div class="stat-value">{{ total_autores }}</div>
+      <div class="stat-label">Autores registrados</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon green">👥</div>
+    <div>
+      <div class="stat-value">{{ total_miembros }}</div>
+      <div class="stat-label">Miembros activos</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon {% if prestamos_vencidos > 0 %}red{% else %}amber{% endif %}">🔄</div>
+    <div>
+      <div class="stat-value">{{ prestamos_activos }}</div>
+      <div class="stat-label">Préstamos activos{% if prestamos_vencidos > 0 %} · <span style="color:#c0392b">{{ prestamos_vencidos }} vencidos</span>{% endif %}</div>
+    </div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header">
+      <h2>📋 Últimos préstamos</h2>
+      <a href="{% url 'lista_prestamos' %}" class="btn btn-outline btn-sm">Ver todos</a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Libro</th><th>Miembro</th><th>Estado</th><th>Vence</th></tr></thead>
+        <tbody>
+          {% for p in ultimos_prestamos %}
+          <tr>
+            <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{ p.libro.titulo }}">{{ p.libro.titulo }}</td>
+            <td>{{ p.miembro }}</td>
+            <td>
+              {% if p.estado == 'activo' %}
+                {% if p.esta_vencido %}<span class="badge badge-red">Vencido</span>
+                {% else %}<span class="badge badge-green">Activo</span>{% endif %}
+              {% elif p.estado == 'devuelto' %}<span class="badge badge-gray">Devuelto</span>
+              {% else %}<span class="badge badge-red">Vencido</span>{% endif %}
+            </td>
+            <td class="text-muted">{{ p.fecha_devolucion_esperada }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" style="text-align:center;padding:30px;color:#a09080">Sin préstamos registrados</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>🏆 Libros más prestados</h2>
+      <a href="{% url 'lista_libros' %}" class="btn btn-outline btn-sm">Ver catálogo</a>
+    </div>
+    <div class="card-body">
+      {% for libro in libros_populares %}
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0ebe0">
+        <div>
+          <div style="font-weight:500;font-size:0.875rem">{{ libro.titulo }}</div>
+          <div class="text-muted">{{ libro.autor }}</div>
+        </div>
+        <span class="badge badge-amber">{{ libro.num_prestamos }} préstamos</span>
+      </div>
+      {% empty %}
+      <div class="empty-state" style="padding:30px">
+        <span class="empty-icon">📖</span>
+        <p>Sin datos aún</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div style="display:flex;gap:16px;margin-top:24px;flex-wrap:wrap">
+  <a href="{% url 'nuevo_libro' %}" class="btn btn-primary">📚 Agregar libro</a>
+  <a href="{% url 'nuevo_autor' %}" class="btn btn-outline">✍️ Agregar autor</a>
+  <a href="{% url 'nuevo_miembro' %}" class="btn btn-teal">👤 Registrar miembro</a>
+  <a href="{% url 'nuevo_prestamo' %}" class="btn btn-amber">📤 Registrar préstamo</a>
+</div>
+{% endblock %}

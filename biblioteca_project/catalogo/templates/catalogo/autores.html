@@ -1,0 +1,48 @@
+{% extends "catalogo/base.html" %}
+{% block title %}Autores{% endblock %}
+{% block topbar_title %}✍️ Autores{% endblock %}
+{% block topbar_actions %}<a href="{% url 'nuevo_autor' %}" class="btn btn-amber btn-sm">➕ Nuevo autor</a>{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Autores</h1>
+    <p class="page-subtitle">{{ autores.count }} autor{{ autores.count|pluralize:"es" }} registrado{{ autores.count|pluralize:"s" }}</p>
+  </div>
+  <a href="{% url 'nuevo_autor' %}" class="btn btn-amber">➕ Nuevo autor</a>
+</div>
+<form method="get">
+  <div class="search-bar">
+    <div class="search-input-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" name="q" value="{{ query }}" placeholder="Buscar por nombre…">
+    </div>
+    <button type="submit" class="btn btn-primary">Buscar</button>
+    <a href="{% url 'lista_autores' %}" class="btn btn-outline">Limpiar</a>
+  </div>
+</form>
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Nombre</th><th>Nacionalidad</th><th>Libros</th><th>Acciones</th></tr></thead>
+      <tbody>
+        {% for autor in autores %}
+        <tr>
+          <td class="text-muted">{{ autor.pk }}</td>
+          <td><div style="font-weight:600">{{ autor }}</div>{% if autor.fecha_nacimiento %}<div class="text-muted">{{ autor.fecha_nacimiento }}</div>{% endif %}</td>
+          <td>{{ autor.nacionalidad|default:"—" }}</td>
+          <td><span class="badge badge-amber">{{ autor.num_libros }} libro{{ autor.num_libros|pluralize:"s" }}</span></td>
+          <td>
+            <div style="display:flex;gap:6px">
+              <a href="{% url 'editar_autor' autor.pk %}" class="btn btn-outline btn-sm btn-icon">✏️</a>
+              <a href="{% url 'eliminar_autor' autor.pk %}" class="btn btn-outline btn-sm btn-icon" style="color:var(--red)">🗑</a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5"><div class="empty-state"><span class="empty-icon">✍️</span><p>Sin autores registrados.</p></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

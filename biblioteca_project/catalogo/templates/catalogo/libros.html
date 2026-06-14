@@ -1,0 +1,76 @@
+{% extends "catalogo/base.html" %}
+{% block title %}Libros{% endblock %}
+{% block topbar_title %}📚 Catálogo de Libros{% endblock %}
+{% block topbar_actions %}<a href="{% url 'nuevo_libro' %}" class="btn btn-amber btn-sm">➕ Nuevo libro</a>{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Catálogo de Libros</h1>
+    <p class="page-subtitle">{{ libros.count }} libro{{ libros.count|pluralize }} registrado{{ libros.count|pluralize }}</p>
+  </div>
+  <a href="{% url 'nuevo_libro' %}" class="btn btn-amber">➕ Agregar libro</a>
+</div>
+<form method="get">
+  <div class="search-bar">
+    <div class="search-input-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" name="q" value="{{ query }}" placeholder="Buscar por título o autor…">
+    </div>
+    <select name="genero" style="width:180px">
+      <option value="">Todos los géneros</option>
+      {% for g in generos %}<option value="{{ g.id }}" {% if genero_id == g.id|stringformat:"s" %}selected{% endif %}>{{ g.nombre }}</option>{% endfor %}
+    </select>
+    <select name="estado" style="width:160px">
+      <option value="">Todos los estados</option>
+      <option value="disponible" {% if estado == 'disponible' %}selected{% endif %}>Disponible</option>
+      <option value="prestado" {% if estado == 'prestado' %}selected{% endif %}>Prestado</option>
+    </select>
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+    <a href="{% url 'lista_libros' %}" class="btn btn-outline">Limpiar</a>
+  </div>
+</form>
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>Título</th><th>Autor</th><th>Género</th>
+          <th>Año</th><th>Disponibles</th><th>Estado</th><th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for libro in libros %}
+        <tr>
+          <td class="text-muted">{{ libro.pk }}</td>
+          <td>
+            <a href="{% url 'detalle_libro' libro.pk %}" style="font-weight:600;color:var(--ink);text-decoration:none">{{ libro.titulo }}</a>
+            {% if libro.editorial %}<div class="text-muted">{{ libro.editorial }}</div>{% endif %}
+          </td>
+          <td>{{ libro.autor }}</td>
+          <td>{% if libro.genero %}<span class="badge badge-blue">{{ libro.genero }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+          <td class="text-muted">{{ libro.anio_publicacion|default:"—" }}</td>
+          <td>
+            <span style="font-weight:600">{{ libro.cantidad_disponible }}</span>
+            <span class="text-muted">/ {{ libro.cantidad_total }}</span>
+          </td>
+          <td>
+            {% if libro.estado == 'disponible' %}<span class="badge badge-green">Disponible</span>
+            {% elif libro.estado == 'prestado' %}<span class="badge badge-amber">Prestado</span>
+            {% else %}<span class="badge badge-gray">{{ libro.get_estado_display }}</span>{% endif %}
+          </td>
+          <td>
+            <div style="display:flex;gap:6px">
+              <a href="{% url 'detalle_libro' libro.pk %}" class="btn btn-outline btn-sm btn-icon" title="Ver">👁</a>
+              <a href="{% url 'editar_libro' libro.pk %}" class="btn btn-outline btn-sm btn-icon" title="Editar">✏️</a>
+              <a href="{% url 'eliminar_libro' libro.pk %}" class="btn btn-outline btn-sm btn-icon" title="Eliminar" style="color:var(--red)">🗑</a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8"><div class="empty-state"><span class="empty-icon">📚</span><p>No se encontraron libros.</p></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

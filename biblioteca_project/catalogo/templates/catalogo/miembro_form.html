@@ -1,0 +1,56 @@
+{% extends "catalogo/base.html" %}
+{% block title %}{{ accion }} Miembro{% endblock %}
+{% block topbar_title %}👥 {{ accion }} Miembro{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <a href="{% url 'lista_miembros' %}" style="font-size:0.82rem;color:#8a7d72;text-decoration:none">← Volver a miembros</a>
+    <h1 class="page-title" style="margin-top:6px">{{ accion }} miembro</h1>
+  </div>
+</div>
+<div class="card" style="max-width:600px">
+  <div class="card-body">
+    <form method="post">{% csrf_token %}
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nombre *</label>
+          <input type="text" name="nombre" value="{{ miembro.nombre|default:'' }}" required>
+        </div>
+        <div class="form-group">
+          <label>Apellido *</label>
+          <input type="text" name="apellido" value="{{ miembro.apellido|default:'' }}" required>
+        </div>
+        <div class="form-group">
+          <label>Correo electrónico *</label>
+          <input type="email" name="email" value="{{ miembro.email|default:'' }}" required>
+        </div>
+        <div class="form-group">
+          <label>Teléfono</label>
+          <input type="text" name="telefono" value="{{ miembro.telefono|default:'' }}">
+        </div>
+        <div class="form-group">
+          <label>Tipo de miembro</label>
+          <select name="tipo">
+            <option value="estudiante" {% if not miembro or miembro.tipo == 'estudiante' %}selected{% endif %}>Estudiante</option>
+            <option value="docente" {% if miembro and miembro.tipo == 'docente' %}selected{% endif %}>Docente</option>
+            <option value="externo" {% if miembro and miembro.tipo == 'externo' %}selected{% endif %}>Externo</option>
+          </select>
+        </div>
+        {% if miembro %}
+        <div class="form-group">
+          <label>Estado</label>
+          <select name="activo">
+            <option value="1" {% if miembro.activo %}selected{% endif %}>Activo</option>
+            <option value="" {% if not miembro.activo %}selected{% endif %}>Inactivo</option>
+          </select>
+        </div>
+        {% endif %}
+      </div>
+      <div class="form-actions" style="margin-top:20px">
+        <button type="submit" class="btn btn-amber">{% if miembro %}💾 Guardar{% else %}➕ Registrar{% endif %}</button>
+        <a href="{% url 'lista_miembros' %}" class="btn btn-outline">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

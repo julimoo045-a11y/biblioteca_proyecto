@@ -1,0 +1,22 @@
+{% extends "catalogo/base.html" %}
+{% block title %}Devolver libro{% endblock %}
+{% block topbar_title %}📥 Devolver libro{% endblock %}
+{% block content %}
+<div style="max-width:480px;margin:40px auto;text-align:center">
+  <div class="card">
+    <div class="card-body">
+      <div style="font-size:3rem;margin-bottom:16px">📥</div>
+      <h2 style="font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:10px">Registrar devolución</h2>
+      <p style="color:#6a5f56;margin-bottom:6px">¿Confirmar devolución del libro?</p>
+      <p style="font-weight:600;font-size:1.05rem;margin-bottom:4px">{{ prestamo.libro.titulo }}</p>
+      <p class="text-muted" style="margin-bottom:24px">Prestado a: {{ prestamo.miembro }}</p>
+      {% if prestamo.esta_vencido %}<div class="alert alert-warning" style="margin-bottom:20px;text-align:left">⚠️ Este préstamo está vencido desde {{ prestamo.fecha_devolucion_esperada }}</div>{% endif %}
+      <form method="post" style="display:flex;gap:12px;justify-content:center">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-teal">✅ Confirmar devolución</button>
+        <a href="{% url 'lista_prestamos' %}" class="btn btn-outline">Cancelar</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

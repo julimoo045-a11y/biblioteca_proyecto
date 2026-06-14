@@ -1,0 +1,69 @@
+{% extends "catalogo/base.html" %}
+{% block title %}{{ libro.titulo }}{% endblock %}
+{% block topbar_title %}📖 Detalle del Libro{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <a href="{% url 'lista_libros' %}" style="font-size:0.82rem;color:#8a7d72;text-decoration:none">← Volver a libros</a>
+    <h1 class="page-title" style="margin-top:6px">{{ libro.titulo }}</h1>
+    {% if libro.genero %}<span class="badge badge-blue">{{ libro.genero }}</span>{% endif %}
+  </div>
+  <div style="display:flex;gap:10px">
+    <a href="{% url 'editar_libro' libro.pk %}" class="btn btn-primary">✏️ Editar</a>
+    <a href="{% url 'eliminar_libro' libro.pk %}" class="btn btn-outline" style="color:var(--red)">🗑 Eliminar</a>
+  </div>
+</div>
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><h2>📋 Información del libro</h2></div>
+    <div class="card-body">
+      <table style="width:100%;font-size:0.875rem">
+        <tr><td style="color:#8a7d72;padding:7px 0;width:140px;font-weight:600;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em">Autor</td><td style="padding:7px 0;font-weight:500">{{ libro.autor }}</td></tr>
+        <tr><td style="color:#8a7d72;padding:7px 0;font-weight:600;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em">Editorial</td><td style="padding:7px 0">{{ libro.editorial|default:"—" }}</td></tr>
+        <tr><td style="color:#8a7d72;padding:7px 0;font-weight:600;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em">Año</td><td style="padding:7px 0">{{ libro.anio_publicacion|default:"—" }}</td></tr>
+        <tr><td style="color:#8a7d72;padding:7px 0;font-weight:600;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em">ISBN</td><td style="padding:7px 0">{{ libro.isbn|default:"—" }}</td></tr>
+        <tr><td style="color:#8a7d72;padding:7px 0;font-weight:600;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em">Páginas</td><td style="padding:7px 0">{{ libro.num_paginas|default:"—" }}</td></tr>
+        <tr><td style="color:#8a7d72;padding:7px 0;font-weight:600;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em">Disponibles</td><td style="padding:7px 0"><strong>{{ libro.cantidad_disponible }}</strong> / {{ libro.cantidad_total }}</td></tr>
+        <tr><td style="color:#8a7d72;padding:7px 0;font-weight:600;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em">Estado</td><td style="padding:7px 0">
+          {% if libro.estado == 'disponible' %}<span class="badge badge-green">Disponible</span>
+          {% elif libro.estado == 'prestado' %}<span class="badge badge-amber">Prestado</span>
+          {% else %}<span class="badge badge-gray">{{ libro.get_estado_display }}</span>{% endif %}
+        </td></tr>
+        <tr><td style="color:#8a7d72;padding:7px 0;font-weight:600;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em">Ingresado</td><td style="padding:7px 0 0">{{ libro.fecha_ingreso }}</td></tr>
+      </table>
+      {% if libro.descripcion %}
+      <div class="divider"></div>
+      <div style="font-size:0.875rem;line-height:1.6;color:#4a4040">{{ libro.descripcion }}</div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <h2>📋 Historial de préstamos</h2>
+      {% if libro.cantidad_disponible > 0 %}<a href="{% url 'nuevo_prestamo' %}?libro={{ libro.pk }}" class="btn btn-amber btn-sm">📤 Prestar</a>{% endif %}
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Miembro</th><th>Préstamo</th><th>Estado</th></tr></thead>
+        <tbody>
+          {% for p in prestamos %}
+          <tr>
+            <td style="font-weight:500">{{ p.miembro }}</td>
+            <td class="text-muted">{{ p.fecha_prestamo }}</td>
+            <td>
+              {% if p.estado == 'activo' %}
+                {% if p.esta_vencido %}<span class="badge badge-red">Vencido</span>
+                {% else %}<span class="badge badge-green">Activo</span>{% endif %}
+              {% elif p.estado == 'devuelto' %}<span class="badge badge-gray">Devuelto</span>
+              {% else %}<span class="badge badge-red">Vencido</span>{% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="3" style="text-align:center;padding:28px;color:#a09080">Sin préstamos registrados</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

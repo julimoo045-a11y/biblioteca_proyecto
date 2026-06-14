@@ -1,0 +1,66 @@
+{% extends "catalogo/base.html" %}
+{% block title %}{{ accion }} Libro{% endblock %}
+{% block topbar_title %}📚 {{ accion }} Libro{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <a href="{% url 'lista_libros' %}" style="font-size:0.82rem;color:#8a7d72;text-decoration:none">← Volver a libros</a>
+    <h1 class="page-title" style="margin-top:6px">{{ accion }} libro</h1>
+  </div>
+</div>
+<div class="card" style="max-width:760px">
+  <div class="card-header"><h2>{% if libro %}Editando: {{ libro.titulo }}{% else %}Nuevo libro{% endif %}</h2></div>
+  <div class="card-body">
+    <form method="post">{% csrf_token %}
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Título *</label>
+          <input type="text" name="titulo" value="{{ libro.titulo|default:'' }}" required placeholder="Título del libro">
+        </div>
+        <div class="form-group">
+          <label>Autor *</label>
+          <select name="autor" required>
+            <option value="">— Seleccionar autor —</option>
+            {% for a in autores %}<option value="{{ a.pk }}" {% if libro and libro.autor_id == a.pk %}selected{% endif %}>{{ a }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Género</label>
+          <select name="genero">
+            <option value="">— Sin género —</option>
+            {% for g in generos %}<option value="{{ g.pk }}" {% if libro and libro.genero_id == g.pk %}selected{% endif %}>{{ g.nombre }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>ISBN</label>
+          <input type="text" name="isbn" value="{{ libro.isbn|default:'' }}" placeholder="978-…">
+        </div>
+        <div class="form-group">
+          <label>Editorial</label>
+          <input type="text" name="editorial" value="{{ libro.editorial|default:'' }}" placeholder="Editorial">
+        </div>
+        <div class="form-group">
+          <label>Año de publicación</label>
+          <input type="number" name="anio_publicacion" value="{{ libro.anio_publicacion|default:'' }}" placeholder="2024" min="1000" max="2099">
+        </div>
+        <div class="form-group">
+          <label>Número de páginas</label>
+          <input type="number" name="num_paginas" value="{{ libro.num_paginas|default:'' }}" placeholder="300" min="1">
+        </div>
+        <div class="form-group">
+          <label>Cantidad en inventario</label>
+          <input type="number" name="cantidad_total" value="{{ libro.cantidad_total|default:1 }}" min="1" required>
+        </div>
+        <div class="form-group full">
+          <label>Descripción</label>
+          <textarea name="descripcion" placeholder="Sinopsis o descripción del libro…">{{ libro.descripcion|default:'' }}</textarea>
+        </div>
+      </div>
+      <div class="form-actions" style="margin-top:20px">
+        <button type="submit" class="btn btn-amber">{% if libro %}💾 Guardar cambios{% else %}➕ Agregar libro{% endif %}</button>
+        <a href="{% url 'lista_libros' %}" class="btn btn-outline">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

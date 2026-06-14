@@ -1,0 +1,59 @@
+{% extends "catalogo/base.html" %}
+{% block title %}Préstamos{% endblock %}
+{% block topbar_title %}🔄 Préstamos{% endblock %}
+{% block topbar_actions %}<a href="{% url 'nuevo_prestamo' %}" class="btn btn-amber btn-sm">📤 Nuevo préstamo</a>{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Préstamos</h1>
+    <p class="page-subtitle">Control de circulación de libros</p>
+  </div>
+  <a href="{% url 'nuevo_prestamo' %}" class="btn btn-amber">📤 Nuevo préstamo</a>
+</div>
+<form method="get">
+  <div class="search-bar">
+    <select name="estado" style="width:180px">
+      <option value="">Todos los estados</option>
+      <option value="activo" {% if estado == 'activo' %}selected{% endif %}>Activos</option>
+      <option value="devuelto" {% if estado == 'devuelto' %}selected{% endif %}>Devueltos</option>
+      <option value="vencido" {% if estado == 'vencido' %}selected{% endif %}>Vencidos</option>
+    </select>
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+    <a href="{% url 'lista_prestamos' %}" class="btn btn-outline">Limpiar</a>
+  </div>
+</form>
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Libro</th><th>Miembro</th><th>Prestado</th><th>Vence</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody>
+        {% for p in prestamos %}
+        <tr {% if p.esta_vencido %}style="background:#fff8f8"{% endif %}>
+          <td class="text-muted">{{ p.pk }}</td>
+          <td style="font-weight:500;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{ p.libro.titulo }}">{{ p.libro.titulo }}</td>
+          <td>{{ p.miembro }}</td>
+          <td class="text-muted">{{ p.fecha_prestamo }}</td>
+          <td {% if p.esta_vencido %}style="color:var(--red);font-weight:600"{% endif %}>{{ p.fecha_devolucion_esperada }}</td>
+          <td>
+            {% if p.estado == 'activo' %}
+              {% if p.esta_vencido %}<span class="badge badge-red">⚠️ Vencido</span>
+              {% else %}<span class="badge badge-green">Activo</span>{% endif %}
+            {% elif p.estado == 'devuelto' %}<span class="badge badge-gray">Devuelto</span>
+            {% else %}<span class="badge badge-red">Vencido</span>{% endif %}
+          </td>
+          <td>
+            {% if p.estado == 'activo' %}
+            <a href="{% url 'devolver_libro' p.pk %}" class="btn btn-teal btn-sm">📥 Devolver</a>
+            {% else %}
+            <span class="text-muted" style="font-size:0.8rem">{{ p.fecha_devolucion_real }}</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7"><div class="empty-state"><span class="empty-icon">🔄</span><p>Sin préstamos registrados.</p></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
